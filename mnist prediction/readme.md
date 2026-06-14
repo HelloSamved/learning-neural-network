@@ -1,8 +1,8 @@
-!(page1)['assets/1.jpeg']
-!(page2)['assets/2.jpeg']
-!(page3)['assets/3.jpeg']
-!(page4)['assets/4.jpeg']
-!(page5)['assets/5.jpeg']
-!(page6)['assets/6.jpeg']
-!(page7)['assets/7.jpeg']
-!(accuracy_image)['assets/accuracy_image.jpeg']
+![page1](assets/1.jpeg)
+![page2](assets/2.jpeg)
+![page3](assets/3.jpeg)
+![page4](assets/4.jpeg)
+![page5](assets/5.jpeg)
+![page6](assets/6.jpeg)
+![page7](assets/7.jpeg)
+![accuracy_image](assets/accuracy_image.jpeg)
