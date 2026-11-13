@@ -1,201 +1,413 @@
-# ðŸ§  MNIST Digit Classifier â€” Neural Network from Scratch with NumPy
+# MNIST Digit Prediction - Neural Network from Scratch with NumPy
 
-> Implemented a neural network from scratch using NumPy, translating forward propagation, backpropagation, activation functions, and gradient descent into pure mathematical operations â€” no deep learning frameworks.
+> Implemented a neural network from scratch using NumPy, translating forward propagation, backpropagation, activation functions, and gradient descent into mathematical operations.
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![NumPy](https://img.shields.io/badge/Built_with-NumPy_only-013243.svg)
-![Dataset](https://img.shields.io/badge/Dataset-MNIST-green.svg)
-![From Scratch](https://img.shields.io/badge/No_Framework-From_Scratch-orange.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+An interactive handwritten-digit classifier powered by a neural network built entirely from scratch with NumPy. No TensorFlow, no PyTorch, no high-level frameworks - just matrix math, calculus, and Python.
 
-Predict handwritten digits (0-9) from the classic **MNIST dataset** using a fully-connected neural network coded entirely with NumPy and math.
+This README documents the complete derivation, including original handwritten notes used while developing the model.
 
----
+**Dataset:** MNIST - 70,000 images of handwritten digits (60,000 train + 10,000 test), each 28x28 grayscale, 10 classes (0-9).
 
-## ðŸ“– Table of Contents
-
-- [Overview](#-overview)
-- [Demo](#-demo)
-- [Features](#-features)
-- [How It Works](#-how-it-works)
-- [Network Architecture](#-network-architecture)
-- [Math Behind the Code](#-math-behind-the-code)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Usage](#-usage)
-- [Training Results](#-training-results)
-- [Hyperparameters](#-hyperparameters)
-- [Customization](#-customization)
-- [Limitations & Future Improvements](#-limitations--future-improvements)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Acknowledgements](#-acknowledgements)
+**Repo:** https://github.com/HelloSamved/learning-neural-network/tree/master/mnist_prediction
 
 ---
 
-## ðŸ” Overview
+## Table of Contents
 
-This project builds a **Multilayer Perceptron (MLP)** from absolute scratch to classify 28x28 grayscale images of handwritten digits.
-
-Instead of using TensorFlow, PyTorch, or scikit-learn, every core concept is implemented manually:
-
-- âœ… **Forward Propagation** with matrix multiplication
-- âœ… **Activation Functions** (ReLU, Softmax)
-- âœ… **Loss Function** (Categorical Cross-Entropy)
-- âœ… **Backpropagation** using the chain rule of calculus
-- âœ… **Gradient Descent** for weight updates
-
-Perfect for anyone learning **how neural networks actually work under the hood.**
-
-**Dataset:** [MNIST](http://yann.lecun.com/exdb/mnist/) â€” 70,000 images (60,000 train + 10,000 test), 28Ã—28 pixels, 10 classes (0-9).
-
----
-
-## ðŸŽ¬ Demo
-
-```text
-Input Image (28x28) -> Flatten (784,) -> Neural Network -> Predicted Digit: 7
-
-Actual: 7 | Predicted: 7 âœ… Confidence: 99.2%
-Actual: 2 | Predicted: 2 âœ… Confidence: 97.8%
-Actual: 4 | Predicted: 9 âŒ Confidence: 61.3%
-```
-
-> Tip: Run `predict.py` to test on your own handwritten digit images!
+- [Overview](#overview)
+- [Results](#results)
+- [Features](#features)
+- [Network Architecture](#network-architecture)
+- [How It Works](#how-it-works)
+- [Math Behind the Code](#math-behind-the-code)
+- [Handwritten Derivation Notes](#handwritten-derivation-notes)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Training Details](#training-details)
+- [Future Improvements](#future-improvements)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
 
 ---
 
-## âœ¨ Features
+## Overview
 
-- **Zero Frameworks:** Only `NumPy`, `Pandas`, `Matplotlib` â€” no TensorFlow/PyTorch
-- **Complete Training Pipeline:** Data loading, normalization, one-hot encoding, training loop, evaluation
-- **Modular Code:** Separate files for network, activations, training, and prediction
-- **Visualization:** Plot loss/accuracy curves + show sample predictions with Matplotlib
-- **Save & Load Weights:** Save trained `.npz` weights to reuse without retraining
-- **Beginner Friendly:** Heavily commented code explaining each mathematical step
+This project builds a 3-layer fully-connected neural network (Multilayer Perceptron) to classify MNIST digits:
+
+- Input: flattened 28x28 image = 784 values, normalized from [0,255] to [0,1]
+- Hidden layers: 2 layers with 28 neurons each, sigmoid activation
+- Output layer: 10 neurons (one per digit), sigmoid / softmax activation
+- Training: full-batch gradient descent with backpropagation derived by hand
+
+Everything - forward pass, loss, gradients, weight updates - is written explicitly with NumPy.
 
 ---
 
-## âš™ï¸ How It Works
+## Results
 
-### 1. Data Preprocessing
-- Load MNIST CSV (`train.csv` / `test.csv` or `load_mnist()` via sklearn/fetch-openml)
-- Normalize pixel values from `[0, 255]` â†’ `[0, 1]` by dividing by 255.0
-- Flatten each `28x28` image into a `784`-dimensional vector
-- One-hot encode labels: `3` â†’ `[0,0,0,1,0,0,0,0,0,0]`
+Final training run:
 
-### 2. Forward Propagation
 ```
-Z1 = W1Â·X + b1  â†’  A1 = ReLU(Z1)
-Z2 = W2Â·A1 + b2 â†’  A2 = Softmax(Z2) = Predicted Probabilities
+w1, b1, w2, b2, w3, b3 = gradient_descent(Xtrain, Ytrain, 0.375, 700)
+Iteration 690: accuracy = 0.9417
 ```
 
-### 3. Backpropagation
-Compute gradients of the loss w.r.t. every weight and bias using the chain rule, then update with gradient descent:
+- Training accuracy: ~94.1 percent after 700 iterations, learning rate 0.375
+- Validation accuracy: ~94.7 percent (see web_interface.py / mnist_weights.npz)
+- Inference: pretrained weights included, no retraining needed for demo
+
+Training log screenshot:
+
+![Training accuracy log](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/accuracy_image.png)
+
+---
+
+## Features
+
+- Neural network from scratch using only NumPy, Pandas, Matplotlib
+- Forward propagation, backpropagation, and gradient descent implemented manually
+- 784 -> 28 -> 28 -> 10 dense architecture
+- Binary cross-entropy / categorical loss with chain-rule gradients
+- Pretrained weights (mnist_weights.npz) for fast inference
+- Streamlit web interface: upload images, confidence visualization, MNIST sample explorer
+- Preprocessing: centering, normalization to 28x28 inputs
+- Fully documented math + original handwritten derivations (see below)
+
+---
+
+## Network Architecture
+
 ```
-W -= learning_rate * dW
-b -= learning_rate * db
+Input (784) -> Hidden Layer 1 (28, sigmoid) -> Hidden Layer 2 (28, sigmoid) -> Output (10, sigmoid)
 ```
 
-### 4. Prediction
-Take `argmax` of output probabilities:
+Shapes (m = number of examples):
+
+| Variable | Shape | Description |
+|----------|-------|-------------|
+| X | (784, m) | Input images, flattened and normalized |
+| W1 | (28, 784) | Weights layer 1 |
+| b1 | (28, 1) | Bias layer 1 |
+| A1 | (28, m) | Activation layer 1 |
+| W2 | (28, 28) | Weights layer 2 |
+| b2 | (28, 1) | Bias layer 2 |
+| A2 | (28, m) | Activation layer 2 |
+| W3 | (10, 28) | Weights layer 3 |
+| b3 | (10, 1) | Bias layer 3 |
+| A3 | (10, m) | Output probabilities |
+
+Total trainable parameters: (28*784 + 28) + (28*28 + 28) + (10*28 + 10) = 23,082
+
+---
+
+## How It Works
+
+1. Preprocessing:
+   - Load train.csv / test.csv
+   - Divide pixels by 255.0 to get range [0,1]
+   - Flatten each 28x28 image to vector of length 784
+   - One-hot encode labels for training, keep integer labels for evaluation
+
+2. Forward propagation: compute Z = W dot A_prev + b, then A = sigmoid(Z) layer by layer.
+
+3. Compute loss (binary cross-entropy averaged over m examples).
+
+4. Backpropagation: apply chain rule from output backwards to compute dW1, db1, dW2, db2, dW3, db3.
+
+5. Gradient descent: W = W - alpha * dW, b = b - alpha * db, repeat for N iterations.
+
+6. Prediction: predicted class = argmax(A3, axis=0).
+
+---
+
+## Math Behind the Code
+
+All equations use plain notation so they render correctly everywhere. Here:
+- Wk = weights of layer k, bk = bias of layer k
+- Zk = linear output of layer k, Ak = activation of layer k
+- Y = true labels (one-hot), m = number of examples
+- sigmoid(z) = 1 / (1 + exp(-z))
+- f'(z) = derivative of activation
+
+### 1. Forward Propagation
+
+General rule for layer k:
+
+```
+Zk = Wk dot A(k-1) + bk
+Ak = sigmoid(Zk)
+```
+
+Expanded for this network (A0 = X):
+
+```
+Z1 = W1 dot X + b1
+A1 = sigmoid(Z1)
+
+Z2 = W2 dot A1 + b2
+A2 = sigmoid(Z2)
+
+Z3 = W3 dot A2 + b3
+A3 = sigmoid(Z3)
+```
+
+Python (NumPy):
+
 ```python
-prediction = np.argmax(A2, axis=0)  # e.g., 7
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+Z1 = np.dot(W1, X) + b1
+A1 = sigmoid(Z1)
+
+Z2 = np.dot(W2, A1) + b2
+A2 = sigmoid(Z2)
+
+Z3 = np.dot(W3, A2) + b3
+A3 = sigmoid(Z3)
+```
+
+### 2. Loss Function
+
+Binary cross-entropy (averaged over m examples):
+
+```
+Loss = -(1/m) * sum( Y * log(A3) + (1 - Y) * log(1 - A3) )
+```
+
+```python
+m = X.shape[1]
+loss = -(1/m) * np.sum(Y * np.log(A3 + 1e-8) + (1 - Y) * np.log(1 - A3 + 1e-8))
+```
+
+### 3. Activation Derivative
+
+```
+sigmoid(z) = 1 / (1 + exp(-z))
+dA/dZ = A * (1 - A)
+```
+
+```python
+def sigmoid_derivative(A):
+    return A * (1 - A)
+```
+
+### 4. Backpropagation (Chain Rule)
+
+Output layer error term:
+
+```
+dZ3 = A3 - Y
+dW3 = (1/m) * dot(dZ3, A2.T)
+db3 = (1/m) * sum(dZ3, axis=1, keepdims=True)
+```
+
+Hidden layer 2:
+
+```
+dZ2 = dot(W3.T, dZ3) * A2 * (1 - A2)
+dW2 = (1/m) * dot(dZ2, A1.T)
+db2 = (1/m) * sum(dZ2, axis=1, keepdims=True)
+```
+
+Hidden layer 1:
+
+```
+dZ1 = dot(W2.T, dZ2) * A1 * (1 - A1)
+dW1 = (1/m) * dot(dZ1, X.T)
+db1 = (1/m) * sum(dZ1, axis=1, keepdims=True)
+```
+
+That is the full chain:
+
+```
+dL/dW1 = (dL/dA3) * (dA3/dZ3) * (dZ3/dA2) * (dA2/dZ2) * (dZ2/dA1) * (dA1/dZ1) * (dZ1/dW1)
+```
+
+Final compact summary (as derived in notes):
+
+```
+dZ3 = (A3 - Y)
+dW3 = (1/m) * dZ3 dot A2.T
+db3 = (1/m) * sum(dZ3)
+
+dZ2 = W3.T dot dZ3 * f2'(Z2)
+dW2 = (1/m) * dZ2 dot A1.T
+db2 = (1/m) * sum(dZ2)
+
+dZ1 = W2.T dot dZ2 * f1'(Z1)
+dW1 = (1/m) * dZ1 dot X.T
+db1 = (1/m) * sum(dZ1)
+```
+
+### 5. Gradient Descent Update
+
+```
+Wk = Wk - alpha * dWk
+bk = bk - alpha * dbk
+```
+
+```python
+W1 -= learning_rate * dW1
+b1 -= learning_rate * db1
+W2 -= learning_rate * dW2
+b2 -= learning_rate * db2
+W3 -= learning_rate * dW3
+b3 -= learning_rate * db3
+```
+
+Used in this project: alpha = 0.375, iterations = 700.
+
+Weight initialization (small random values):
+
+```python
+np.random.seed(42)
+W1 = np.random.randn(28, 784) * 0.01
+b1 = np.zeros((28, 1))
+W2 = np.random.randn(28, 28) * 0.01
+b2 = np.zeros((28, 1))
+W3 = np.random.randn(10, 28) * 0.01
+b3 = np.zeros((10, 1))
 ```
 
 ---
 
-## ðŸ§¬ Network Architecture
+## Handwritten Derivation Notes
 
-Default architecture used in this project:
+These are the original diary notes used to derive the network. They are kept in `mnist_prediction/assets/` and linked below.
 
-```text
-Input Layer (784)  â†’  Hidden Layer (128, ReLU)  â†’  Hidden Layer (64, ReLU)  â†’  Output Layer (10, Softmax)
+### Note 1 - Architecture plan: from 2 layers to 3 layers
+
+Working on better accuracy by adding more hidden layers. Current: Input X (784,1). New plan: X (784,1) -> A1 (28,1) -> A2 (28,1) -> A3 (10,1).
+
+![Note 1 - Architecture](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/1.jpeg)
+
+What it shows:
+
+```
+A1 = sigmoid(Z1) = sigmoid(W1 dot X + b1)
+A2 = sigmoid(Z2) = sigmoid(W2 dot A1 + b2)
+A3 = sigmoid(Z3) = sigmoid(W3 dot A2 + b3)
 ```
 
-| Layer | Shape | Activation | Params |
-|-------|-------|------------|--------|
-| Input | 784 | â€” | â€” |
-| Dense 1 | 128 | ReLU | 784Ã—128 + 128 |
-| Dense 2 | 64 | ReLU | 128Ã—64 + 64 |
-| Output | 10 | Softmax | 64Ã—10 + 10 |
+with shapes W1:(28,784), W2:(28,28), W3:(10,28).
 
-**Total trainable parameters:** ~109,386
+### Note 2 - Forward and backward propagation setup
 
-> You can change this easily in `config.py` or `neural_network.py`, e.g., `[784, 256, 128, 10]`.
+Defines forward equations per layer and sets up the computation graph for backprop: X,b1 -> Z1 -> A1, with W2,b2 -> Z2 -> A2, with W3,b3 -> Z3 -> A3, with Y -> Cost C. General rule: Zk = Wk dot A(k-1) + bk.
+
+![Note 2 - Forward Backward Setup](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/2.jpeg)
+
+### Note 3 and 4 - Chain rule for output layer (W3, b3)
+
+Loss:
+
+```
+Loss = -(1/m) * [ Y * log(A3) + (1-Y) * log(1-A3) ]
+```
+
+Derivation:
+
+```
+dL/dW3 = (dL/dA3) * (dA3/dZ3) * (dZ3/dW3)
+dL/db3 = (dL/dA3) * (dA3/dZ3) * (dZ3/db3)
+```
+
+where:
+
+```
+dL/dA3 = -(1/m) * [ Y/A3 - (1-Y)/(1-A3) ]
+dA3/dZ3 = A3 * (1-A3)
+dZ3/dW3 = A2,  dZ3/db3 = 1
+```
+
+Simplified result:
+
+```
+dZ3 = A3 - Y
+dW3 = (1/m) * dZ3 dot A2.T
+db3 = (1/m) * sum(dZ3)
+```
+
+![Note 3 - Output gradients](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/3.jpeg)
+
+![Note 4 - Output gradients continued](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/4.jpeg)
+
+### Note 5 - Hidden layer 2 gradients (W2, b2)
+
+```
+dL/dW2 = (dL/dA3)*(dA3/dZ3)*(dZ3/dA2)*(dA2/dZ2)*(dZ2/dW2)
+dZ2 = W3.T dot dZ3 * f'(Z2)
+dW2 = (1/m) * dZ2 dot A1.T
+db2 = (1/m) * sum(dZ2)
+```
+
+Explains dimension matching of LHS and RHS by summing over axis=1.
+
+![Note 5 - Hidden layer 2](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/5.jpeg)
+
+### Note 6 - Hidden layer 1 gradients (W1, b1)
+
+```
+dL/dW1 = (dL/dZ2)*(dZ2/dA1)*(dA1/dZ1)*(dZ1/dW1)
+dZ1 = W2.T dot dZ2 * f'(Z1)
+dW1 = (1/m) * dZ1 dot X.T
+db1 = (1/m) * sum(dZ1)
+```
+
+![Note 6 - Hidden layer 1](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/6.jpeg)
+
+### Note 7 - Final conclusion (all update equations)
+
+Complete set used in code:
+
+```
+dZ3 = (A3 - Y)
+dW3 = (1/m) * dZ3 dot A2.T
+db3 = (1/m) * sum(dZ3, axis=1)
+
+dZ2 = W3.T dot dZ3 * f2'(Z2)
+dW2 = (1/m) * dZ2 dot A1.T
+db2 = (1/m) * sum(dZ2, axis=1)
+
+dZ1 = W2.T dot dZ2 * f1'(Z1)
+dW1 = (1/m) * dZ1 dot X.T
+db1 = (1/m) * sum(dZ1, axis=1)
+```
+
+![Note 7 - Final equations](https://raw.githubusercontent.com/HelloSamved/learning-neural-network/master/mnist_prediction/assets/7.jpeg)
+
+Source folder: https://github.com/HelloSamved/learning-neural-network/tree/master/mnist_prediction/assets
 
 ---
 
-## ðŸ“ Math Behind the Code
+## Project Structure
 
-Implemented from scratch:
-
-**ReLU:**
-```python
-def relu(Z):
-    return np.maximum(0, Z)
 ```
-
-**Softmax:**
-```python
-def softmax(Z):
-    exp = np.exp(Z - np.max(Z, axis=0, keepdims=True)) # for numerical stability
-    return exp / np.sum(exp, axis=0, keepdims=True)
-```
-
-**Cross-Entropy Loss:**
-```python
-loss = -np.mean(np.sum(Y_one_hot * np.log(A2 + 1e-8), axis=0))
-```
-
-**Backprop (output layer example):**
-```python
-dZ2 = A2 - Y_one_hot
-dW2 = (1/m) * dZ2.dot(A1.T)
-db2 = (1/m) * np.sum(dZ2, axis=1, keepdims=True)
-```
-
-**Weight Initialization â€” He Initialization:**
-```python
-W = np.random.randn(n_current, n_prev) * np.sqrt(2. / n_prev)
+mnist_prediction/
+  mnist_prediction.ipynb        # original model exploration and learning notebook
+  mnist-prediction.ipynb        # alternate / full training notebook
+  mnist_prediction.py           # corrected reusable neural-network + preprocessing code
+  mnist_prediction_pytorch.ipynb# PyTorch comparison version
+  web_interface.py              # Streamlit app: upload, confidence chart, sample explorer
+  mnist_weights.npz             # pretrained W1,b1,W2,b2,W3,b3 + accuracy metadata
+  mnist_samples.npz             # lightweight sample set for live explorer
+  train.csv                     # MNIST training data (if present locally, not committed)
+  assets/
+    1.jpeg                      # handwritten note: architecture
+    2.jpeg                      # handwritten note: forward/backward setup
+    3.jpeg                      # handwritten note: loss + chain rule
+    4.jpeg                      # handwritten note: dW3, db3 derivation
+    5.jpeg                      # handwritten note: dW2, db2 derivation
+    6.jpeg                      # handwritten note: dW1, db1 derivation
+    7.jpeg                      # handwritten note: final equations
+    accuracy_image.png          # training log screenshot
 ```
 
 ---
 
-## ðŸ“ Project Structure
-
-```text
-mnist-numpy-nn/
-â”‚
-â”œâ”€â”€ data/
-â”‚   â”œâ”€â”€ train.csv              # MNIST training set (60k images, optional)
-â”‚   â””â”€â”€ test.csv               # MNIST test set (10k images, optional)
-â”‚
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ neural_network.py      # NeuralNetwork class: init, forward, backward, update, train, predict
-â”‚   â”œâ”€â”€ activations.py         # relu, relu_derivative, softmax
-â”‚   â”œâ”€â”€ utils.py               # load_data, one_hot, accuracy, plot_loss, save/load weights
-â”‚   â””â”€â”€ config.py              # hyperparameters: layers, lr, epochs, batch_size
-â”‚
-â”œâ”€â”€ train.py                   # Train the network
-â”œâ”€â”€ predict.py                 # Load weights + predict single image / test set
-â”œâ”€â”€ demo.ipynb                 # Jupyter notebook walkthrough + visualizations
-â”‚
-â”œâ”€â”€ requirements.txt
-â”œâ”€â”€ README.md
-â””â”€â”€ LICENSE
-```
-
-If you have a single-file version, it looks like:
-```text
-â”œâ”€â”€ mnist_nn.py       # Entire network in one file
-â”œâ”€â”€ train.csv
-â””â”€â”€ README.md
-```
-
----
-
-## ðŸš€ Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -203,178 +415,141 @@ If you have a single-file version, it looks like:
 - pip
 
 ### 1. Clone the repository
+
 ```bash
-git clone https://github.com/your-username/mnist-numpy-nn.git
-cd mnist-numpy-nn
+git clone https://github.com/HelloSamved/learning-neural-network.git
+cd learning-neural-network/mnist_prediction
 ```
 
 ### 2. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-`requirements.txt`:
-```txt
+Minimum requirements:
+
+```
 numpy>=1.21.0
 pandas>=1.3.0
 matplotlib>=3.4.0
+streamlit>=1.20.0
 scikit-learn>=1.0.0
 ```
 
-### 3. Get the MNIST Dataset
+### 3. Get MNIST data
 
-**Option A â€” Kaggle CSV (recommended for this project):**
-1. Download from [Kaggle MNIST in CSV](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv)
-2. Place `train.csv` and `test.csv` in `data/`
+Option A - Kaggle CSV (used in notebooks):
+1. Download from https://www.kaggle.com/datasets/oddrationale/mnist-in-csv
+2. Place train.csv and test.csv next to mnist_prediction.py
 
-**Option B â€” Auto-download with sklearn:**
+Option B - Auto-download with sklearn (no CSV needed):
+
 ```python
 from sklearn.datasets import fetch_openml
 X, y = fetch_openml('mnist_784', version=1, return_X_y=True, as_frame=False)
 ```
-The code in `utils.py` handles both.
 
 ---
 
-## ðŸ’» Usage
+## Usage
 
-### Train the model
+### Run the web app (recommended)
+
 ```bash
-python train.py --epochs 50 --lr 0.01 --batch_size 64 --hidden 128,64
+streamlit run web_interface.py
+```
+
+Features: upload your own digit image, see predicted digit + confidence bar chart, browse real MNIST samples.
+
+### Retrain from scratch
+
+```bash
+python mnist_prediction.py
 ```
 
 Or in Python:
-```python
-from src.neural_network import NeuralNetwork
-from src.utils import load_data
-
-X_train, y_train, X_test, y_test = load_data()
-
-nn = NeuralNetwork(layers=[784, 128, 64, 10], lr=0.01)
-nn.train(X_train, y_train, epochs=50, batch_size=64)
-accuracy = nn.evaluate(X_test, y_test)
-print(f"Test Accuracy: {accuracy:.2f}%")
-
-nn.save_weights("weights.npz")
-```
-
-### Predict digits
-```bash
-python predict.py --image data/my_digit.png --weights weights.npz
-```
 
 ```python
-from src.neural_network import NeuralNetwork
+from mnist_prediction import gradient_descent, predict
+import numpy as np
+
+# Xtrain shape (784, m), Ytrain one-hot shape (10, m)
+w1, b1, w2, b2, w3, b3 = gradient_descent(Xtrain, Ytrain, learning_rate=0.375, iterations=700)
+
+pred = predict(Xtest, w1, b1, w2, b2, w3, b3)
+acc = np.mean(pred == Ytest_labels)
+print(f"Test accuracy: {acc * 100:.2f}%")
+```
+
+### Predict a single image
+
+```python
 import numpy as np
 from PIL import Image
+from mnist_prediction import predict_single
 
-nn = NeuralNetwork(layers=[784, 128, 64, 10])
-nn.load_weights("weights.npz")
-
-img = Image.open("my_digit.png").convert("L").resize((28,28))
-x = np.array(img).reshape(784,1) / 255.0
-pred, conf = nn.predict_single(x)
-print(f"Predicted: {pred} with {conf:.2f}% confidence")
+img = Image.open("my_digit.png").convert("L").resize((28, 28))
+x = (255 - np.array(img)).reshape(784, 1) / 255.0  # invert if white background
+label, probs = predict_single(x, w1, b1, w2, b2, w3, b3)
+print(f"Predicted: {label}, confidence: {np.max(probs)*100:.1f}%")
 ```
 
-### Visualize predictions
-```python
-from src.utils import show_predictions
-show_predictions(nn, X_test, y_test, num=10)
-```
+Note: MNIST digits are white on black. If you draw black on white, invert the image as above.
 
 ---
 
-## ðŸ“Š Training Results
+## Training Details
 
-Trained on 60,000 images, tested on 10,000 images:
+- Architecture: 784 -> 28 -> 28 -> 10
+- Activation: sigmoid for all layers
+- Loss: cross-entropy
+- Optimizer: batch gradient descent
+- Learning rate: 0.375
+- Iterations: 700
+- Initialization: random * 0.01, biases zero, seed 42 for reproducibility
+- Preprocessing: pixels / 255.0, flatten to (784, m)
 
-| Epochs | Learning Rate | Hidden Layers | Train Acc | Test Acc | Loss |
-|--------|---------------|---------------|-----------|----------|------|
-| 10 | 0.01 | [128, 64] | 94.2% | 93.5% | 0.21 |
-| 50 | 0.01 | [128, 64] | 97.8% | 96.4% | 0.08 |
-| 100 | 0.005 | [256, 128] | 98.9% | **97.6%** | 0.04 |
+Observed progression (see accuracy_image.png):
 
-**Confusion Matrix highlights:**
-- Best: `1`, `0`, `6` (>98% correct)
-- Hardest: `4` vs `9`, `3` vs `5` (visually similar)
-
-> Results will vary slightly due to random weight initialization. Set `np.random.seed(42)` for reproducibility.
-
-Loss curve:
-```text
-Epoch 1:  loss=0.68  acc=78%
-Epoch 10: loss=0.21  acc=93%
-Epoch 50: loss=0.08  acc=97%  <- converges
 ```
-
----
-
-## ðŸŽ›ï¸ Hyperparameters
-
-Edit in `src/config.py`:
-
-```python
-CONFIG = {
-    "layers": [784, 128, 64, 10],
-    "learning_rate": 0.01,
-    "epochs": 50,
-    "batch_size": 64,
-    "seed": 42
-}
+Iteration 600: ~0.9372
+Iteration 650: ~0.9395
+Iteration 690: ~0.9417
 ```
 
 Tips:
-- Increase hidden units (e.g., 256) for higher accuracy, slower training
-- Lower `lr` to 0.001-0.005 if loss oscillates
-- Use mini-batch gradient descent (`batch_size=32/64`) â€” much faster than full-batch
+- Increase hidden units to 64 or 128 for higher accuracy, slower training
+- Lower learning rate to 0.1-0.2 if loss oscillates
+- Switch hidden activation to ReLU + He init + softmax output for faster convergence
 
 ---
 
-## ðŸ”§ Customization
+## Future Improvements
 
-- **Try different activations:** Add `sigmoid`, `tanh`, `leaky_relu` in `activations.py`
-- **Add regularization:** L2 penalty or dropout to reduce overfitting
-- **Add a CNN:** Extend to convolution + max-pooling with NumPy for 99%+ accuracy
-- **Draw your own digit:** Use the `predict.py` script with a white-on-black 28Ã—28 image
-
----
-
-## ðŸš§ Limitations & Future Improvements
-
-- [ ] Currently MLP only â€” no convolutional layers yet
-- [ ] No GPU support (pure NumPy CPU)
-- [ ] No Adam/RMSprop optimizer â€” only vanilla SGD
-- [ ] Add live drawing GUI with Tkinter / Streamlit
-
-Contributions welcome!
+- [ ] Add ReLU + Softmax + Adam variant for comparison
+- [ ] Add CNN with NumPy for 99 percent+ accuracy
+- [ ] Add confusion matrix and per-digit precision/recall
+- [ ] Add live drawing canvas in Streamlit app
+- [ ] Export model to ONNX
 
 ---
 
-## ðŸ¤ Contributing
+## Acknowledgements
 
-1. Fork the repo
-2. Create a branch: `git checkout -b feature/my-feature`
-3. Commit: `git commit -m "Add my feature"`
-4. Push: `git push origin feature/my-feature`
-5. Open a Pull Request
-
----
-
-## ðŸ“„ License
-
-This project is licensed under the MIT License â€” see [LICENSE](LICENSE) for details.
+- MNIST Database - Yann LeCun, Corinna Cortes, Christopher Burges: http://yann.lecun.com/exdb/mnist/
+- Michael Nielsen - Neural Networks and Deep Learning: http://neuralnetworksanddeeplearning.com/
+- 3Blue1Brown - Neural Networks series for visual intuition
+- Handwritten notes in assets/ by the project author, derived March 2019
 
 ---
 
-## ðŸ™ Acknowledgements
+## License
 
-- [MNIST Database](http://yann.lecun.com/exdb/mnist/) â€” Yann LeCun, Corinna Cortes, Christopher Burges
-- [Michael Nielsen â€” Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
-- [3Blue1Brown â€” Neural Networks Series](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
+MIT License. See LICENSE file for details. If no LICENSE file exists, all code and notes in this repository are shared for learning purposes - please credit the author when reusing.
 
 ---
 
-### â­ If you found this helpful, please star the repo!
+If you found this helpful, please star the repo: https://github.com/HelloSamved/learning-neural-network
 
-> Built with â¤ï¸ and pure mathematics â€” no frameworks, just NumPy.
+Built with NumPy and pure mathematics - no deep learning frameworks.
