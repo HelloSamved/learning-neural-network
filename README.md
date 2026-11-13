@@ -65,7 +65,7 @@ Training log screenshot:
 
 ## Features
 
-- Neural network from scratch using only NumPy, Pandas, Matplotlib
+- Neural network from scratch using only NumPy, Pandas, and mathematics
 - Forward propagation, backpropagation, and gradient descent implemented manually
 - 784 -> 28 -> 28 -> 10 dense architecture
 - Binary cross-entropy / categorical loss with chain-rule gradients
@@ -544,12 +544,6 @@ Tips:
 
 ---
 
-## License
-
-MIT License. See LICENSE file for details. If no LICENSE file exists, all code and notes in this repository are shared for learning purposes - please credit the author when reusing.
-
----
-
+HELLOOOOOO
 If you found this helpful, please star the repo: https://github.com/HelloSamved/learning-neural-network
 
-Built with NumPy and pure mathematics - no deep learning frameworks.
